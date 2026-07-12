@@ -39,7 +39,7 @@ def log(msg):
 # run yet) we fall back to the legacy single-device path so the app still runs.
 OUTPUT_LABEL = "Android_Webcam"    # what OBS selects; held at a constant format
 SOURCE_LABEL = "LensLink_Source"   # internal sink scrcpy writes to
-OUT_W, OUT_H = 1920, 1080
+OUT_W, OUT_H = 1080, 1920
 
 scrcpy_process = None
 ffmpeg_process = None
