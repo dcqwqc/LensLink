@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=LensLink
+Comment=Professional Android Webcam tool
+Exec=/home/qwqc/.local/bin/lenslink-app
+Icon=/home/qwqc/.local/share/icons/lenslink_logo_black.png
+Terminal=false
+Type=Application
+Categories=Utility;Video;
