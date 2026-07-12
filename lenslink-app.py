@@ -66,7 +66,10 @@ def start_scrcpy():
     cmd = ['scrcpy', f'--v4l2-sink={dev}', '--no-audio']
     
     if config["hidden"]:
-        cmd.append('--no-playback')
+        # --no-window fully suppresses scrcpy's SDL window (the small
+        # "Android logo" placeholder) while still forwarding frames to the
+        # v4l2 sink. --no-playback alone leaves a stub window on screen.
+        cmd.append('--no-window')
     else:
         cmd.append('--window-borderless')
         cmd.append('--window-title=LensLink Viewfinder')
