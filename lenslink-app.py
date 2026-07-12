@@ -21,7 +21,7 @@ def load_config():
                 return json.load(f)
         except Exception:
             pass
-    return {"mode": "camera0", "hidden": True}
+    return {"mode": "camera0", "hidden": True, "orientation": "vertical"}
 
 def save_config(config):
     try:
@@ -63,23 +63,33 @@ def start_scrcpy():
     if not dev:
         return
         
-    cmd = ['scrcpy', f'--v4l2-sink={dev}', '--no-audio']
+    cmd = ['scrcpy', f'--v4l2-sink={dev}', '--no-audio', '--max-size=1920']
     
     if config["hidden"]:
-        # --no-window fully suppresses scrcpy's SDL window (the small
-        # "Android logo" placeholder) while still forwarding frames to the
-        # v4l2 sink. --no-playback alone leaves a stub window on screen.
-        cmd.append('--no-window')
+        cmd.append('--no-playback')
     else:
         cmd.append('--window-borderless')
         cmd.append('--window-title=LensLink Viewfinder')
         
+    is_vertical = (config.get("orientation", "vertical") == "vertical")
+    
     if config["mode"] == "camera0":
-        cmd.extend(['--camera-size=1920x1080', '--video-source=camera', '--camera-id=0'])
+        cmd.extend(['--video-source=camera', '--camera-id=0', '--camera-ar=16:9'])
+        if is_vertical:
+            cmd.append('--capture-orientation=90')
+        else:
+            cmd.append('--capture-orientation=0')
     elif config["mode"] == "camera1":
-        cmd.extend(['--camera-size=1920x1080', '--video-source=camera', '--camera-id=1'])
+        cmd.extend(['--video-source=camera', '--camera-id=1', '--camera-ar=16:9'])
+        if is_vertical:
+            cmd.append('--capture-orientation=90')
+        else:
+            cmd.append('--capture-orientation=0')
     elif config["mode"] == "mirror":
-        cmd.extend(['--video-source=display', '--max-size=1920', '--capture-orientation=@'])
+        cmd.extend(['--video-source=display'])
+        # For mirror, we lock it to the phone's physical rotation at the time of launch
+        # If they want vertical, they must hold it vertically. If horizontal, horizontally.
+        cmd.append('--capture-orientation=@')
         
     scrcpy_process = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, preexec_fn=os.setsid)
 
@@ -120,6 +130,28 @@ def main():
     menu.append(cam0_item)
     menu.append(cam1_item)
     menu.append(mirror_item)
+    menu.append(Gtk.SeparatorMenuItem())
+    
+    # Orientation Toggle
+    vert_item = Gtk.RadioMenuItem.new_with_label(None, "Orientation: Vertical (TikTok)")
+    horiz_item = Gtk.RadioMenuItem.new_with_label_from_widget(vert_item, "Orientation: Horizontal (YouTube)")
+    
+    if config.get("orientation", "vertical") == "vertical":
+        vert_item.set_active(True)
+    else:
+        horiz_item.set_active(True)
+        
+    def set_orientation(item, ori):
+        if item.get_active():
+            config["orientation"] = ori
+            save_config(config)
+            threading.Thread(target=start_scrcpy).start()
+            
+    vert_item.connect("toggled", set_orientation, "vertical")
+    horiz_item.connect("toggled", set_orientation, "horizontal")
+    
+    menu.append(vert_item)
+    menu.append(horiz_item)
     menu.append(Gtk.SeparatorMenuItem())
     
     hide_item = Gtk.CheckMenuItem.new_with_label("Toggle Window Visibility")
