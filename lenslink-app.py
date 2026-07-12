@@ -79,7 +79,7 @@ def start_scrcpy():
     elif config["mode"] == "camera1":
         cmd.extend(['--camera-size=1920x1080', '--video-source=camera', '--camera-id=1'])
     elif config["mode"] == "mirror":
-        cmd.extend(['--video-source=display'])
+        cmd.extend(['--video-source=display', '--max-size=1920', '--capture-orientation=@'])
         
     scrcpy_process = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, preexec_fn=os.setsid)
 
