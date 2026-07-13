@@ -41,6 +41,12 @@ chmod +x install.sh
 3. Right-click the tray icon to select your preferred camera or screen mirror mode.
 4. Open OBS Studio or Discord, and select `Android_Webcam` as your Video Capture Device.
 
+### Important: Orientation and OBS
+The "Output: Vertical / Horizontal" toggle changes video0's actual output resolution.
+- **One thing to remember:** Flipping this toggle will mismatch OBS's cached format until OBS re-negotiates. You MUST deactivate and reactivate the source in OBS right after changing this setting.
+- Since your OBS is vertical, just leave it on **Output: Vertical**. Both the phone mirror and cameras will output as 1080x1920 (an exact match), keeping the feed clean so OBS never has to reconnect.
+- Only touch this toggle if you ever reconfigure OBS to a horizontal canvas.
+
 ## Credits & Acknowledgements
 This project is built directly on top of [scrcpy](https://github.com/Genymobile/scrcpy) by Genymobile. All video encoding, decoding, and V4L2 integration is handled by their incredible open-source engine.
 
